@@ -10,4 +10,3 @@ dj-rest-auth==4.0.0
 drf_yasg==1.21.5
 factory-boy==3.2.1
 Faker==18.7.0
-

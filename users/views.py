@@ -1,9 +1,10 @@
 from datetime import timedelta
 
+from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from dj_rest_auth.registration.views import SocialLoginView
 from django.conf import settings
-from django.contrib.auth import authenticate
 from django.core.mail import send_mail
-from django.http import Http404
 from django.utils.crypto import get_random_string
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -14,9 +15,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from users.models import User, VerificationCode
-
-from users.serializers import RegisterSerializer, LoginSerializer, CustomTokenObtainPairSerializer, UserSerializer, \
+from users.models import VerificationCode
+from users.serializers import RegisterSerializer, CustomTokenObtainPairSerializer, UserSerializer, \
     UserDetailSerializer, SendEmailVerificationCodeSerializer, CheckEmailVerificationCodeSerializer
 
 
@@ -51,19 +51,18 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-class LoginView(APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data.get("email")
-        password = serializer.validated_data.get("password")
-        user = User.objects.filter(email=email).first()
-        if user:
-            authenticate(request, password=password, email=email)
-            return Response(serializer.data)
-        else:
-            raise Http404
-
+# class LoginView(APIView):
+#     def post(self, request, *args, **kwargs):
+#         serializer = LoginSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         email = serializer.validated_data.get("email")
+#         password = serializer.validated_data.get("password")
+#         user = User.objects.filter(email=email).first()
+#         if user:
+#             authenticate(request, password=password, email=email)
+#             return Response(serializer.data)
+#         else:
+#             raise Http404
 
 class SendEmailVerificationCodeView(APIView):
 
@@ -117,3 +116,11 @@ class CheckEmailVerificationCodeWithParams(APIView):
         verification_code.is_verified = True
         verification_code.save(update_fields=["is_verified"])
         return Response({"detail": "Verification code is verified."})
+
+
+class FacebookLogin(SocialLoginView):
+    adapter_class = FacebookOAuth2Adapter
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter

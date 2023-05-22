@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from blogs.models import Blog
+from blogs.models import Blog, LikeDislike
 from categories.models import Category
 from users.models import User
 
@@ -22,7 +22,7 @@ class BlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ("id", "author", "title", "slug", "image", "category", "collab", "body")
+        fields = ("id", "author", "title", "slug", "image", "category", "collab", "body", "likes", "dislikes")
 
 
 class BlogCreateSerializer(serializers.ModelSerializer):
@@ -33,3 +33,7 @@ class BlogCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = ["id", "author", "title", "slug", "image", "category", "collab", "body"]
+
+
+class BlogLikeDislikeSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(choices=LikeDislike.LikeType.choices)
